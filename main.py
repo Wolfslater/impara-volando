@@ -33,10 +33,11 @@ while True:
     if is_pressed("s"): control[1] -= 1
     if is_pressed("a"): control[0] -= 1
     if is_pressed("d"): control[0] += 1
+    elif is_pressed(" "): control = [0,0,0,0]
 
     #print(*control)
+    control = [0,0,0,0]
     drone.send_rc_control(*control)
-    if is_pressed(" "): [i for i in control = control[i] = 0]
     img = drone.get_frame_read().frame
     cv2.imshow("prova", img)
     cv2.waitKey(1)
