@@ -7,21 +7,6 @@ drone = tello.Tello()
 drone.connect()
 print(f"{drone.get_battery()}")
 
-'''drone.move_forward(40)
-sleep(1.5)
-drone.move_back(40)
-sleep(1.5)
-
-drone.send_rc_control(20,0,0,0)
-sleep(3)
-drone.send_rc_control(0,20,0,0)
-sleep(3)
-drone.send_rc_control(-20,0,0,0)
-sleep(3)
-drone.send_rc_control(0,-20,0,0)
-sleep(3)
-drone.land()
-'''
 move = 20
 control = [0,0,0,0]
 
