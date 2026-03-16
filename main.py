@@ -26,9 +26,3 @@ while True:
     img = drone.get_frame_read().frame
     cv2.imshow("prova", img)
     cv2.waitKey(1)
-
-drone.send_rc_control(1,0,0,0)
-sleep(3)
-drone.send_rc_control(0,0,0,0)
-sleep(3)
-drone.land()
