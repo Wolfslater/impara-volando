@@ -2,10 +2,11 @@ from djitellopy import tello
 from sys import exit
 from keyboard import is_pressed
 import cv2
+from testDrone import Drone
 
 def draw_speed(img, x, y, speed): #creats a rectangle that shows the drone speed
-    if is_pressed("q") and speed < 100: speed += 5
-    if is_pressed("e") and speed > 0: speed -= 5
+    if is_pressed("q") and speed < 100: speed += 1
+    if is_pressed("e") and speed > 0: speed -= 1
     cv2.rectangle(img, (x, y), (x + 30, y + 100), (255, 255, 0), 3)
     cv2.rectangle(img, (x, y + 100 - speed), (x + 30, y + 100), (25, 255, 0), cv2.FILLED)
     return speed
@@ -27,7 +28,8 @@ def send_control(control):
     return control
 
 if __name__ == '__main__':
-    drone = tello.Tello()
+    #drone = tello.Tello()
+    drone = Drone()
     drone.connect()
     print(f"{drone.get_battery()}")
 
@@ -42,11 +44,11 @@ if __name__ == '__main__':
 
         #print(*control)
         if (control!=oldcontrol):
-            drone.send_rc_control(*control)
-        img = drone.get_frame_read().frame
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            drone.send_rc_control(control[0], control[1], control[2], control[3])
+        img = drone.get_frame_read()#.frame
+        #img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         cv2.putText(img, f"Battery life: {drone.get_battery()}%",
             (690, 100), cv2.QT_FONT_NORMAL, 1, (50, 240, 255), 2)
         speed = draw_speed(img, 10, 10, speed)
-        cv2.imshow("prova", img)
+        #cv2.imshow("prova", img)
         cv2.waitKey(1)
