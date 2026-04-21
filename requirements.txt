@@ -1,0 +1,5 @@
+python==3.10-12
+tensorflow==2.16.1
+mediapipe==0.10.14
+opencv-python==4.13.0.92
+cvzone==1.6.1
