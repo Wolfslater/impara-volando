@@ -1,4 +1,5 @@
 from djitellopy import tello
+from time import sleep
 from sys import exit
 import cv2
 from cvzone.HandTrackingModule import HandDetector
@@ -58,7 +59,25 @@ if __name__ == '__main__':
             center = hand['center']
             lmList = hand['lmList']
             fingers = detector.fingersUp(hand)
-            if fingers[0] == 1: print("debug", fingers)
+
+            if fingers[0] == 1: 
+                '''#print("debug", fingers[0], fingers[1])
+                drone.send_rc_control(20, 0, 0, 0)
+                sleep(1)
+                drone.send_rc_control(0, 20, 0, 0)
+                sleep(1)
+                drone.send_rc_control(-20, 0, 0, 0)
+                sleep(1)
+                drone.send_rc_control(0, -20, 0, 0)'''
+                
+            if all(f == 1 for f in fingers) and drone.is_flying:
+                print("land")  # drone.land()
+                if drone.is_flying: 
+                    #print("land")
+                    drone.land()
+            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
+                if not drone.is_flying:
+                    drone.takeoff() #print("takeoff")
             cv2.rectangle(img, (x - 20, y - 20), (x + w + 20, y + h + 20), (0, 255, 0), 2)
             cv2.putText(img, type, (x - 20, y - 30), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
         cv2.putText(img, f"Battery life: {drone.get_battery()}%",
