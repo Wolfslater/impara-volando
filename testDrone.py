@@ -1,3 +1,4 @@
+# always check for ls /dev/video*
 from sys import exit
 from keyboard import is_pressed
 import cv2 as cv2
@@ -5,7 +6,7 @@ import cv2 as cv2
 class Frame():
     def __init__(self):
         #pass 0 to VideoCapture if you have only 1 webcam
-        self.cap = cv2.VideoCapture(1)
+        self.cap = cv2.VideoCapture(0)
     def frame(self):
         ret, img = self.cap.read()
         return img
@@ -69,7 +70,7 @@ if __name__ == '__main__':
         if (control!=oldcontrol):
             drone.send_rc_control(control[0], control[1], control[2], control[3])
         img = drone.get_frame_read().frame()
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        #img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         cv2.putText(img, f"Battery life: {drone.get_battery()}%",
             (690, 100), cv2.QT_FONT_NORMAL, 1, (50, 240, 255), 2)
         speed = draw_speed(img, 10, 10, speed)

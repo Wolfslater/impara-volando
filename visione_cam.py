@@ -1,7 +1,8 @@
+# always check for ls /dev/video*
 import cv2
 from cvzone.HandTrackingModule import HandDetector
 detector = HandDetector(maxHands=2)
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(3)
 key = 0
 
 while key!=27:
