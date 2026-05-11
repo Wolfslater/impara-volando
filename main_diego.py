@@ -1,9 +1,11 @@
+#sudo fuser -k 8889/udp
+#ls /dev/video*
 from djitellopy import tello
 from time import sleep
 from sys import exit
 import cv2
 from cvzone.HandTrackingModule import HandDetector
-detector = HandDetector(maxHands=2)
+detector = HandDetector(maxHands=1)
 from keyboard import is_pressed
 
 key = 0
@@ -28,8 +30,17 @@ def send_control(control):
     if is_pressed("l"): control[3] = speed
     if is_pressed("i"): control[2] = speed
     if is_pressed("k"): control[2] = -speed
-    if is_pressed("-"): control = [0,0,0,0]
+    if is_pressed("-"): control[:] = [0,0,0,0]
     return control
+
+def detect_hand(hands):
+    if hands:
+        hand = hands[0]
+        x, y, w, h = hand['bbox']
+        hand_type = hand['type']
+        fingers = detector.fingersUp(hand)
+        return fingers, x, y, w, h, hand_type
+    return [0, 0, 0, 0, 0], 0, 0, 0, 0, ""
 
 if __name__ == '__main__':
     drone = tello.Tello()
@@ -52,34 +63,26 @@ if __name__ == '__main__':
         img = drone.get_frame_read().frame
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         hands, img = detector.findHands(img, draw=True)
-        if hands:
-            hand = hands[0]
-            x,y,w,h = hand['bbox']
-            type = hand['type']
-            center = hand['center']
-            lmList = hand['lmList']
-            fingers = detector.fingersUp(hand)
+        fingers, x, y, w, h, hand_type = detect_hand(hands)
 
-            if fingers[0] == 1: 
-                '''#print("debug", fingers[0], fingers[1])
-                drone.send_rc_control(20, 0, 0, 0)
-                sleep(1)
-                drone.send_rc_control(0, 20, 0, 0)
-                sleep(1)
-                drone.send_rc_control(-20, 0, 0, 0)
-                sleep(1)
-                drone.send_rc_control(0, -20, 0, 0)'''
-                
-            if all(f == 1 for f in fingers) and drone.is_flying:
-                print("land")  # drone.land()
-                if drone.is_flying: 
-                    #print("land")
-                    drone.land()
-            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
-                if not drone.is_flying:
-                    drone.takeoff() #print("takeoff")
+        if fingers[0] == 1: 
+            '''#print("debug", fingers[0], fingers[1])
+            drone.send_rc_control(20, 0, 0, 0)
+            sleep(1)
+            drone.send_rc_control(0, 20, 0, 0)
+            sleep(1)
+            drone.send_rc_control(-20, 0, 0, 0)
+            sleep(1)
+            drone.send_rc_control(0, -20, 0, 0)'''
+            
+        if all(f == 1 for f in fingers) and drone.is_flying:
+            print("land")
+            drone.land()
+        elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
+            if not drone.is_flying:
+                drone.takeoff() #print("takeoff")
             cv2.rectangle(img, (x - 20, y - 20), (x + w + 20, y + h + 20), (0, 255, 0), 2)
-            cv2.putText(img, type, (x - 20, y - 30), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
+            cv2.putText(img, hand_type, (x - 20, y - 30), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
         cv2.putText(img, f"Battery life: {drone.get_battery()}%",
             (690, 100), cv2.QT_FONT_NORMAL, 1, (50, 240, 255), 2)
         speed = draw_speed(img, 10, 10, speed)
